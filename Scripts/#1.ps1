@@ -1,24 +1,5 @@
 
 
-# Create ADAL application and test connection
-# Connect to Azure AD as an admin account
-Connect-AzureAD
- 
-# Create Azure Active Directory Application (ADAL App)
-$application = New-AzureADApplication -DisplayName "AzureADPosh" -IdentifierUris "https://techmikael.com/AzureADPosh"
-New-AzureADApplicationKeyCredential -ObjectId $application.ObjectId -CustomKeyIdentifier "AzureADPosh" -Type AsymmetricX509Cert -Usage Verify -Value $keyValue -StartDate $currentDate -EndDate $endDate
- 
-# Create the Service Principal and connect it to the Application
-$sp=New-AzureADServicePrincipal -AppId $application.AppId 
- 
-# Give the application read/write permissions to AAD
-Add-AzureADDirectoryRoleMember -ObjectId (Get-AzureADDirectoryRole | where-object {$_.DisplayName -eq "Directory Writers"}).Objectid -RefObjectId $sp.ObjectId
- 
-# Test to login using the app
-$tenant = Get-AzureADTenantDetail
-$appId = $application.AppId
-Connect-AzureAD -TenantId $tenant.ObjectId -ApplicationId  $Application.AppId -CertificateThumbprint $thumb
-
 
  # ***********      #1     ***********************
 
@@ -44,7 +25,7 @@ Connect-AzureAD -TenantId $tenant.ObjectId -ApplicationId  $Application.AppId -
         # Get AppID
         $AppObjID = $Application.ObjectId
         
-# 3. Create key which never expire  ( Make the End Date "31/12/2299" This will give you the 281: If you creating keys which never expires in Azure will do the same)
+# 3. Create key which never expire  ( Make the End Date "31/12/2299" This will give you the 281: If you are creating keys which never expires in Azure will do the same)
         
                 # Create AppKeys
                 $AppKey = New-AzureADApplicationKeyCredential -ObjectId $AppObjID -CustomKeyIdentifier "Test" -StartDate "25/9/2018" -EndtDate "31/12/2299"  -Type "Symmetric" 
@@ -62,14 +43,26 @@ Connect-AzureAD -TenantId $tenant.ObjectId -ApplicationId  $Application.AppId -
 # 2. Add correct permissions
         ## Groups.ReadWrite.All (Microsoft Graph)
         ## Sites.FullControl.All (Office 365 SharePoint Online)
-
+        
+        # Create the Service Principal and connect it to the Application
+        $sp=New-AzureADServicePrincipal -AppId $application.AppId 
+        $Application.ObjectId
 
 
 
 # 4. Create keyvault to store appid/appsecret 
 
-        # connect AzureRMAcount to create Resource Group
-         Connect-AzureRmAccount 
+        
+        # connect to your subscription to create Resource Group
+        Connect-AzureRmAccount 
+
+        # Create a resource group
+        New-AzureRmResourceGroup -Name 'AutoEngineRG' -Location 'North Europe'
+
+        # Create key Vault
+        New-AzureRmKeyVault -VaultName 'AutoEngineKeyVault' -ResourceGroupName 'AutoEngineRG' -Location 'North Europe'
+        # Now you have the vault name for future modification and vault URI which allow the applictions to access the vault via REST API
+
 
 # 5. Store appid/appsecret in Azure Key Vault
 # 6. Create certificate to be used with SharePoint CSOM app-only from ADAL app
