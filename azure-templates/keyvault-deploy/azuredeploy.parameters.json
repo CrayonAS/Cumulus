@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vault": {
+      "value": {
+        "name": "testcumulus",
+        "tenantId": "735b127c-8d36-4ca5-a849-fab62ed56663",
+        "sku": "standard"
+      }
+    }
+  }
+}

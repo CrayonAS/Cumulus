@@ -1,0 +1,195 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "site": {
+      "type": "object",
+      "defaultValue": {
+        "name": "testcumulusfuncs"
+      }
+    },
+    "storageaccount": {
+      "type": "object",
+      "defaultValue": {
+        "name": "testcumulusstorage",
+        "sku": {
+          "name": "Standard_LRS",
+          "tier": "Standard"
+        }
+      }
+    },
+    "serverfarm": {
+      "type": "object",
+      "defaultValue": {
+        "name": "testcumulusplan",
+        "sku": {
+          "name": "Y1",
+          "tier": "Dynamic",
+          "size": "Y1",
+          "family": "Y",
+          "capacity": 0
+        }
+      }
+    },
+    "sourcecontrol": {
+      "type": "object",
+      "defaultValue": {
+        "repoUrl": "https://github.com/stikrake/azure-functions",
+        "branch": "master"
+      }
+    }
+  },
+  "variables": {
+    "site": {
+      "name": "[parameters('site').name]"
+    },
+    "storageaccount": {
+      "name": "[parameters('storageaccount').name]",
+      "sku": {
+        "name": "[parameters('storageaccount').sku.name]",
+        "tier": "[parameters('storageaccount').sku.tier]"
+      }
+    },
+    "serverfarm": {
+      "name": "[parameters('serverfarm').name]",
+      "sku": {
+        "name": "[parameters('serverfarm').sku.name]",
+        "tier": "[parameters('serverfarm').sku.tier]",
+        "size": "[parameters('serverfarm').sku.size]",
+        "family": "[parameters('serverfarm').sku.family]",
+        "capacity": "[parameters('serverfarm').sku.capacity]"
+      }
+    },
+    "sourcecontrol": {
+      "repoUrl": "[parameters('sourcecontrol').repoUrl]",
+      "branch": "[parameters('sourcecontrol').branch]"
+    }
+  },
+  "resources": [
+    {
+      "comments": "Storage account.",
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "[variables('storageaccount').sku.name]",
+        "tier": "[variables('storageaccount').sku.tier]"
+      },
+      "kind": "Storage",
+      "name": "[variables('storageaccount').name]",
+      "apiVersion": "2018-03-01-preview",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": false,
+        "encryption": {
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "App Service plan",
+      "name": "[variables('serverfarm').name]",
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2016-09-01",
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "name": "[variables('serverfarm').name]"
+      },
+      "sku": {
+        "name": "[variables('serverfarm').sku.name]",
+        "tier": "[variables('serverfarm').sku.tier]",
+        "size": "[variables('serverfarm').sku.size]",
+        "family": "[variables('serverfarm').sku.family]",
+        "capacity": "[variables('serverfarm').sku.capacity]"
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "site",
+      "name": "[variables('site').name]",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2016-08-01",
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(variables('site').name,'.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(variables('site').name,'.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverfarm').name)]",
+        "reserved": false,
+        "siteConfig": {
+          "netFrameworkVersion": "v4.6",
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "ADALDomain",
+              "value": "contoso.onmicrosoft.com"
+            },
+            {
+              "name": "KeyVaultUri",
+              "value": "localhost"
+            }
+          ],
+          "use32BitWorkerProcess": false,
+          "cors": {
+            "allowedOrigins": [
+              "*"
+            ]
+          }
+        },
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "hostNamesDisabled": false,
+        "containerSize": 1536,
+        "dailyMemoryTimeQuota": 0
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverfarm').name)]"
+      ],
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('site').name)]"
+          ],
+          "properties": {
+            "repoUrl": "[variables('sourcecontrol').repoUrl]",
+            "branch": "[variables('sourcecontrol').branch]",
+            "IsManualIntegration": true
+          }
+        }
+      ]
+    }
+  ]
+}
