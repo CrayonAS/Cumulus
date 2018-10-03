@@ -1,0 +1,381 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "defaultValue": "CustomActionChecker",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Logic App."
+      }
+    },
+    "logicAppLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2"
+      ],
+      "metadata": {
+        "description": "Location of the Logic App."
+      }
+    },
+    "office365_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "office365"
+    },
+    "office365_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "stian@inmetademo.com"
+    },
+    "LogicAppLocation1": {
+      "type": "string",
+      "minLength": 1,
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2"
+      ],
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "variables": {
+    "logicAppName": "[parameters('logicAppName')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('logicAppName')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('LogicAppLocation1')]",
+      "tags": {
+        "displayName": "LogicApp"
+      },
+      "apiVersion": "2016-06-01",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Initialize_siteInfoFilledOut": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "siteInfoFilledOut",
+                    "type": "Boolean",
+                    "value": false
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Initialize_variable_reminderDays": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "reminderDays",
+                    "type": "Array",
+                    "value": [
+                      1,
+                      7,
+                      14,
+                      28
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Initialize_loopCount": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "loopCount",
+                    "type": "Integer",
+                    "value": 0
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Until": {
+              "type": "Until",
+              "expression": "@equals(variables('siteInfoFilledOut'), true)",
+              "limit": {
+                "count": 29,
+                "timeout": "P30D"
+              },
+              "actions": {
+                "Compose_2": {
+                  "type": "Compose",
+                  "inputs": "check if custom script is present on site@{triggerBody()?['webUrl']} ",
+                  "runAfter": {}
+                },
+                "Condition_2": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@outputs('Compose_2')",
+                          "is site configured?"
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Set_variable": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "siteInfoFilledOut",
+                        "value": "@true"
+                      },
+                      "runAfter": {}
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_2": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {
+                      "Condition": {
+                        "type": "If",
+                        "expression": {
+                          "and": [
+                            {
+                              "contains": [
+                                "@variables('reminderDays')",
+                                "@variables('loopCount')"
+                              ]
+                            }
+                          ]
+                        },
+                        "actions": {
+                          "Send_an_email": {
+                            "type": "ApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connection": {
+                                  "name": "@parameters('$connections')['office365']['connectionId']"
+                                }
+                              },
+                              "method": "post",
+                              "body": {
+                                "To": "@triggerBody()?['creatorEmail']",
+                                "Subject": "Conigfure up site",
+                                "Body": "You need to configure up your site on@{triggerBody()?['webUrl']} "
+                              },
+                              "path": "/Mail"
+                            },
+                            "runAfter": {}
+                          }
+                        },
+                        "runAfter": {}
+                      },
+                      "Delay_1_day": {
+                        "type": "Wait",
+                        "inputs": {
+                          "interval": {
+                            "count": 1,
+                            "unit": "Day"
+                          }
+                        },
+                        "runAfter": {
+                          "Condition": [
+                            "Succeeded"
+                          ]
+                        }
+                      },
+                      "Increment_loopCount": {
+                        "type": "IncrementVariable",
+                        "inputs": {
+                          "name": "loopCount",
+                          "value": 1
+                        },
+                        "runAfter": {
+                          "Delay_1_day": [
+                            "Succeeded"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "description": "If site is configured, set variable to true and exit loop"
+                }
+              },
+              "runAfter": {
+                "Initialize_siteInfoFilledOut": [
+                  "Succeeded"
+                ],
+                "Initialize_variable_reminderDays": [
+                  "Succeeded"
+                ],
+                "Initialize_loopCount": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Site_Info_still_not_filled_in": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@variables('siteInfoFilledOut')",
+                      "@false"
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Compose": {
+                  "type": "Compose",
+                  "inputs": "Delete site@{triggerBody()?['webUrl']} ",
+                  "runAfter": {}
+                }
+              },
+              "runAfter": {
+                "Until": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "webUrl": {
+                      "type": "string"
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "event": {
+                          "type": "string"
+                        },
+                        "product": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "webDescription": {
+                      "type": "string"
+                    },
+                    "creatorName": {
+                      "type": "string"
+                    },
+                    "creatorEmail": {
+                      "type": "string"
+                    },
+                    "createdTimeUTC": {
+                      "type": "string"
+                    },
+                    "groupId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "method": "POST"
+              }
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "office365": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('LogicAppLocation1'), '/managedApis/', 'office365')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('office365_1_Connection_Name'))]",
+                "connectionName": "[parameters('office365_1_Connection_Name')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', parameters('office365_1_Connection_Name'))]"
+      ]
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2016-06-01",
+      "name": "[parameters('office365_1_Connection_Name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'office365')]"
+        },
+        "displayName": "[parameters('office365_1_Connection_DisplayName')]"
+      }
+    }
+  ],
+  "outputs": {
+    "logicAppUrl": {
+      "type": "string",
+      "value": "[listCallbackURL(concat(resourceId('Microsoft.Logic/workflows/', variables('logicAppName')), '/triggers/manual'), '2016-06-01').value]"
+    }
+  }
+}

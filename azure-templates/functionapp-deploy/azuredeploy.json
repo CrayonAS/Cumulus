@@ -35,7 +35,7 @@
       "type": "object",
       "defaultValue": {
         "repoUrl": "https://github.com/CrayonAS/Cumulus.Monads",
-        "branch": "master"
+        "branch": "dev"
       }
     }
   },
@@ -199,5 +199,11 @@
         }
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "keyVaultUrl": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', parameters('site').name)]"
+    }
+  }
 }

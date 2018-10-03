@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/azure-templates/keyvault-deploy/bin/Debug/staging/keyvault-deploy
+/azure-templates/.vs/azure-templates/DesignTimeBuild
+/azure-templates/functionapp-deploy/bin/Debug/staging/functionapp-deploy
+/azure-templates/logicapps-deploy/bin/Debug/staging/logicapps-deploy
