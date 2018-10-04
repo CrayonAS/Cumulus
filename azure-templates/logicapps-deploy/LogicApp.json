@@ -11,89 +11,24 @@
         "description": "Name of the Logic App."
       }
     },
-    "logicAppLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "allowedValues": [
-        "[resourceGroup().location]",
-        "eastasia",
-        "southeastasia",
-        "centralus",
-        "eastus",
-        "eastus2",
-        "westus",
-        "northcentralus",
-        "southcentralus",
-        "northeurope",
-        "westeurope",
-        "japanwest",
-        "japaneast",
-        "brazilsouth",
-        "australiaeast",
-        "australiasoutheast",
-        "southindia",
-        "centralindia",
-        "westindia",
-        "canadacentral",
-        "canadaeast",
-        "uksouth",
-        "ukwest",
-        "westcentralus",
-        "westus2"
-      ],
-      "metadata": {
-        "description": "Location of the Logic App."
-      }
-    },
     "office365_1_Connection_Name": {
       "type": "string",
       "defaultValue": "office365"
     },
     "office365_1_Connection_DisplayName": {
       "type": "string",
-      "defaultValue": "stian@inmetademo.com"
-    },
-    "LogicAppLocation1": {
-      "type": "string",
-      "minLength": 1,
-      "allowedValues": [
-        "[resourceGroup().location]",
-        "eastasia",
-        "southeastasia",
-        "centralus",
-        "eastus",
-        "eastus2",
-        "westus",
-        "northcentralus",
-        "southcentralus",
-        "northeurope",
-        "westeurope",
-        "japanwest",
-        "japaneast",
-        "brazilsouth",
-        "australiaeast",
-        "australiasoutheast",
-        "southindia",
-        "centralindia",
-        "westindia",
-        "canadacentral",
-        "canadaeast",
-        "uksouth",
-        "ukwest",
-        "westcentralus",
-        "westus2"
-      ],
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "Office 365"
     }
   },
   "variables": {
-    "logicAppName": "[parameters('logicAppName')]"
+    "logicAppName": "[parameters('logicAppName')]",
+    "logicAppLocation": "[resourceGroup().location]"
   },
   "resources": [
     {
       "name": "[variables('logicAppName')]",
       "type": "Microsoft.Logic/workflows",
-      "location": "[parameters('LogicAppLocation1')]",
+      "location": "[variables('logicAppLocation')]",
       "tags": {
         "displayName": "LogicApp"
       },
@@ -347,7 +282,7 @@
           "$connections": {
             "value": {
               "office365": {
-                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('LogicAppLocation1'), '/managedApis/', 'office365')]",
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'office365')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('office365_1_Connection_Name'))]",
                 "connectionName": "[parameters('office365_1_Connection_Name')]"
               }
@@ -363,10 +298,10 @@
       "type": "MICROSOFT.WEB/CONNECTIONS",
       "apiVersion": "2016-06-01",
       "name": "[parameters('office365_1_Connection_Name')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('logicAppLocation')]",
       "properties": {
         "api": {
-          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/', 'office365')]"
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'office365')]"
         },
         "displayName": "[parameters('office365_1_Connection_DisplayName')]"
       }
