@@ -6,3 +6,8 @@
 /azure-templates/.vs/azure-templates/DesignTimeBuild
 /azure-templates/functionapp-deploy/bin/Debug/staging/functionapp-deploy
 /azure-templates/logicapps-deploy/bin/Debug/staging/logicapps-deploy
+/sharepoint-sitedesigns/.vs/sharepoint-sitedesigns/v15
+/sharepoint-sitedesigns/.vs/config
+/sharepoint-sitedesigns/deployment/obj/Debug
+/.vs/Cumulus/v15
+/.vs/sharepoint-sitedesigns/v15

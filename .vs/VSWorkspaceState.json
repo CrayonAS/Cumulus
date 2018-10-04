@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\spfx",
+    "\\spfx\\deployment"
   ],
+  "SelectedNode": "\\spfx\\deployment",
   "PreviewInSolutionExplorer": false
 }

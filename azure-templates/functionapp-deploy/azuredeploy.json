@@ -199,11 +199,5 @@
         }
       ]
     }
-  ],
-  "outputs": {
-    "keyVaultUrl": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/sites', parameters('site').name)]"
-    }
-  }
+  ]
 }
