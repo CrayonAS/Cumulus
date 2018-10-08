@@ -127,6 +127,11 @@
       "apiVersion": "2016-08-01",
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
+      "identity": {
+        "principalId": "",
+        "tenantId": "",
+        "type": "SystemAssigned"
+      },
       "properties": {
         "enabled": true,
         "hostNameSslStates": [
@@ -198,6 +203,24 @@
           }
         }
       ]
+    },
+    {
+      "name": "[concat('testcumulus','/add')]",
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "735b127c-8d36-4ca5-a849-fab62ed56663",
+            "objectId": "[reference(concat('Microsoft.Web/sites/', variables('site').name),'2016-08-01','Full').identity.principalId]",
+            "permissions": {
+              "secrets": [
+                "get"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }
