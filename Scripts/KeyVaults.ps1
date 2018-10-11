@@ -37,7 +37,7 @@ Function CreateKeyVault
     $KeyVault = New-AzureRmKeyVault -VaultName 'AutomationEngineKeyVault' -ResourceGroupName 'AutomationEngineResourceGroup' -Location 'NorthEurope'
         #Convert password to a secure string
     $secretvalue = ConvertTo-SecureString 'Password' -AsPlainText -Force
-        #
+        #Store the Secret in Azure KeyVault
     $secret = Set-AzureKeyVaultSecret -VaultName 'AutomationEngineKeyVault' -Name 'ExamplePassword' -SecretValue $secretvalue
 
     (Get-AzureKeyVaultSecret -vaultName "AutomationEngineKeyVault" -name "ExamplePassword").SecretValueText
