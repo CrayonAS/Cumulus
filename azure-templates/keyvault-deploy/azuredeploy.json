@@ -16,6 +16,10 @@
           ]
         }
       }
+    },
+    "secrets": {
+      "defaultValue": "{}",
+      "type": "secureObject"
     }
   },
   "variables": {
@@ -23,7 +27,8 @@
       "name": "[parameters('vault').name]",
       "tenantId": "[parameters('vault').tenantId]",
       "sku": "[parameters('vault').sku]"
-    }
+    },
+    "secrets": "[parameters('secrets')]"
   },
   "resources": [
     {
@@ -47,6 +52,22 @@
       },
       "dependsOn": [
       ]
+    },
+    {
+      "comments": "Secrets to be stored in the KeyVault created earlier",
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('vault').name, '/', variables('secrets').secrets[copyIndex()].secretName)]",
+      "apiVersion": "2016-10-01",
+      "properties": {
+        "value": "[variables('secrets').secrets[copyIndex()].secretValue]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('vault').name)]"
+      ],
+      "copy": {
+        "name": "secretsCopy",
+        "count": "[length(variables('secrets').secrets)]"
+      }
     }
   ],
   "outputs": {

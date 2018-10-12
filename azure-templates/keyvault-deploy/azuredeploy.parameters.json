@@ -8,6 +8,29 @@
         "tenantId": "735b127c-8d36-4ca5-a849-fab62ed56663",
         "sku": "standard"
       }
+    },
+    "secrets": {
+      "value": {
+        "secrets": [
+          {
+            "secretName": "ADALAppCertificateKey",
+            "secretValue": "stuff"
+          },
+          {
+            "secretName": "ADALAppCertificate",
+            "secretValue": "stuff"
+          },
+          {
+            "secretName": "ADALAppId",
+            "secretValue": "stuff"
+          },
+          {
+            "secretName": "ADALAppSecret",
+            "secretValue": "stuff"
+          }
+        ]
+      }
+
     }
   }
 }
