@@ -49,6 +49,9 @@ This function removes the Azure AD applications that were created by the #1.ps1 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
         Write-Host "Removed."
+
+        Remove-AzureRmKeyVault -VaultName "AutomationEngineKeyVault" -ResourceGroupName "AutomationEngineResourceGroup"  -Force -Confirm:$False
+        Remove-AzureRmResourceGroup -Name "AutomationEngineResourceGroup" -Force
     }
 
 }

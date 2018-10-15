@@ -102,7 +102,6 @@ Function CreateADALApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    
-<<<<<<< HEAD
     #Generate password
     Function GeneratePassword {
         $aesManaged = New-Object "System.Security.Cryptography.AesManaged"
@@ -144,24 +143,30 @@ Function CreateADALApplications
   $pw = GeneratePassword
   $fromDate = [System.DateTime]::Now
   $appKey = CreateKey -fromDate $fromDate -durationInYears 2299 -pw $pw
-=======
- 
 
->>>>>>> 7d0b0b726f837ce7aec935575a419f29e5155019
+  # Store appkey into KeyVault
+       #Creating a resource group
+    $ResourceGroup = New-AzureRmResourceGroup -Name 'AutomationEngineResourceGroup' -Location 'NorthEurope'
 
-   # Create the client AAD application
-   Write-Host "Creating the AAD application (AutomationEngine)"
-   $clientAadApplication = New-AzureADApplication -DisplayName "AutomationEngine" `
-                                                  -HomePage "https://localhost:44321/" `
-                                                  -ReplyUrls "https://$tenantName/AutomationEngine/oauth2/callback" `
-                                                  -IdentifierUris "https://$tenantName/AutomationEngine" `
-<<<<<<< HEAD
-                                                  -PublicClient $False `
-                                                  -PasswordCredentials $appKey
-=======
-                                                  -PublicClient $False
->>>>>>> 7d0b0b726f837ce7aec935575a419f29e5155019
-                                                  #-KeyCredentials $clientKeyCredentials
+       #Creating a key Vault
+    $KeyVault = New-AzureRmKeyVault -VaultName 'AutomationEngineKeyVault' -ResourceGroupName 'AutomationEngineResourceGroup' -Location 'NorthEurope'
+       #Convert password to a secure string
+    $secretvalue = ConvertTo-SecureString $appKey -AsPlainText -Force
+       #Store keys into keyvault
+    $secret = Set-AzureKeyVaultSecret -VaultName 'AutomationEngineKeyVault' -Name 'ExamplePassword' -SecretValue   $secretvalue
+
+    $printkey = (Get-AzureKeyVaultSecret -vaultName "AutomationEngineKeyVault" -name "ExamplePassword").SecretValueText
+    Write-Host "Checking Saved keys...    $printkey " 
+
+
+    # Create the client AAD application
+    Write-Host "Creating the AAD application (AutomationEngine)"
+    $clientAadApplication = New-AzureADApplication -DisplayName "AutomationEngine" `
+                                                    -HomePage "https://localhost:44321/" `
+                                                    -ReplyUrls "https://$tenantName/AutomationEngine/oauth2/callback" `
+                                                    -IdentifierUris "https://$tenantName/AutomationEngine" `
+                                                    -PublicClient $False `
+                                                    -PasswordCredentials $appKey
 
                                                                
                                                
@@ -176,9 +181,6 @@ Function CreateADALApplications
    $certBase64Value = [System.Convert]::ToBase64String($certificate.GetRawCertData())
    $certBase64Thumbprint = [System.Convert]::ToBase64String($certificate.GetCertHash())
 
-<<<<<<< HEAD
-   #$certBase64Thumbprint = [System.Convert]::ToBase64String($certificate.GetCertHash())
-
    $now = [System.DateTime]::Now
    $EnDAte = $now.AddYears(5)
  
@@ -190,46 +192,25 @@ Function CreateADALApplications
 
    # Add Certificate thumbprint to ADAL minifest
 
-=======
-   
-  # Generating Credentials
-  $clientKeyCredentials = New-AzureADApplicationKeyCredential   -ObjectId $clientAadApplication.ObjectId `
-                                                                -CustomKeyIdentifier "CN=AutomationEngineWithCert" `
-                                                                -Type AsymmetricX509Cert `
-                                                                -Usage Verify `
-                                                                -Value $certBase64Value `
-                                                                -StartDate $certificate.NotBefore `
-                                                                -EndDate  $certificate.NotAfter  
-
-   
-     
-   $password = ConvertTo-SecureString -String "123" -AsPlainText -Force
-   $thumbp = (($certificate).Thumbprint)
-   $cert = Get-Item -Path Microsoft.PowerShell.Security\Certificate::CurrentUser\My\$thumbp
->>>>>>> 7d0b0b726f837ce7aec935575a419f29e5155019
    Export-PfxCertificate -Password $password -Cert $cert -FilePath "C:\Users\abdahmed\Desktop\MyCert.pfx" -Verbose
    $Global:mycert = $certificate
    $currentAppId = $clientAadApplication.AppId
    $clientServicePrincipal = New-AzureADServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
 
-<<<<<<< HEAD
 
-  # Generating Credentials
+  # Generating Credentials  & Adding Certificate thumbprint to ADAL Manifest
    $clientKeyCredentials = New-AzureADApplicationKeyCredential -ObjectId $clientAadApplication.ObjectId `
-                                                                -CustomKeyIdentifier $certBase64Thumbprint `
+                                                                -CustomKeyIdentifier "CN=AutomationEngineWithCert" `
                                                                 -Type AsymmetricX509Cert `
                                                                 -Usage Verify `
-                                                                -Value $certBase64Value `
+                                                                -Value  $certBase64Value `
                                                                 -StartDate $certificate.NotBefore `
-                                                                -EndDate $EnDAte.NotAfter
+                                                                -EndDate $certificate.NotAfter
 
 
                                                                 
 
    # add the user running the script as an app owner/
-=======
-   # add the user running the script as an app owner
->>>>>>> 7d0b0b726f837ce7aec935575a419f29e5155019
    Add-AzureADApplicationOwner -ObjectId $clientAadApplication.ObjectId -RefObjectId $user.ObjectId
    Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
 
@@ -251,10 +232,7 @@ Function CreateADALApplications
    $requiredResourcesAccess.Add($requiredSPPermissions)
    $requiredResourcesAccess.Add($requiredGraphPermissions)
 
-<<<<<<< HEAD
    # Grant  
-=======
->>>>>>> 7d0b0b726f837ce7aec935575a419f29e5155019
    Set-AzureADApplication -ObjectId $clientAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
    Write-Host "Granted permissions."
   
@@ -269,7 +247,3 @@ CreateADALApplications -Credential $Credential -tenantId $TenantId
 # $DemoCre = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userNameDemo,$passDemo
 
 # Go the file path.. and run  .\#1.ps1
-<<<<<<< HEAD
-
-=======
->>>>>>> 7d0b0b726f837ce7aec935575a419f29e5155019
