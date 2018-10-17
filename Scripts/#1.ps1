@@ -152,7 +152,7 @@ Function CreateADALApplications
         }
 
         Write-Host "Creating the AAD application (AutomationEngine)"
-        $clientAadApplication = New-AzureADApplication -DisplayName "AutomationEngine" `
+        $clientAadApplication = New-AzureADApplication -DisplayName " $ApplicationNameTobeCreated" `
                                                         -HomePage "https://localhost:44321/" `
                                                         -ReplyUrls "https://$tenantName/AutomationEngine/oauth2/callback" `
                                                         -IdentifierUris "https://$tenantName/AutomationEngine" `

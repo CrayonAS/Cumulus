@@ -42,8 +42,10 @@ This function removes the Azure AD applications that were created by the #1.ps1 
     
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
-   $app=Get-AzureADApplication -Filter "identifierUris/any(uri:uri eq 'https://$tenantName/AutomationEngine')"  
-   
+    $ApplicationNameTobeDeleted = Read-Host " Enter the Application Name "
+    
+    $app=Get-AzureADApplication -Filter "identifierUris/any(uri:uri eq 'https://$tenantName/$ApplicationNameTobeDeleted')"  
+
 
     if ($app) 
     {
@@ -60,7 +62,7 @@ This function removes the Azure AD applications that were created by the #1.ps1 
         $InmetaCre = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userNameInmeta,$passInmeta
 
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed."
+        Write-Host "Removed ADAL Application."
 
         Connect-AzureRmAccount  -Credential  $InmetaCre
         Write-Host "Removing Resource Group and Key Vault Just a minute ......"
