@@ -127,24 +127,54 @@ Function CreateADALApplications
         $testKey = GenerateKey -fromDate $fromDate -durationInYears $durationInYears -pw $pw
         
         while ($testKey.Value -match "\+" -or $testKey.Value -match "/") {
-            Write-Host "Secret contains + or / and may not authenticate correctly. Regenerating..." -ForegroundColor Yellow
+           # Write-Host "Secret contains + or / and may not authenticate correctly. Regenerating..." -ForegroundColor Yellow
             $pw = GeneratePassword
             $testKey = GenerateKey -fromDate $fromDate -durationInYears $durationInYears -pw $pw
         }
-        Write-Host "Secret doesn't contain + or /. Continuing..." -ForegroundColor Green
+       # Write-Host "Secret doesn't contain + or /. Continuing..." -ForegroundColor Green
         $key = $testKey
         
         return $key
     }
     
 
+        # Get an application key
+        $pw = GeneratePassword
+        $fromDate = [System.DateTime]::Now
+        $appKey = CreateKey -fromDate $fromDate -durationInYears 2299 -pw $pw
 
-  # Get an application key
-  $pw = GeneratePassword
-  $fromDate = [System.DateTime]::Now
-  $appKey = CreateKey -fromDate $fromDate -durationInYears 2299 -pw $pw
+        # Create the client AAD application
+        $ApplicationNameTobeCreated = Read-Host " Enter the Application Name "
+        $TheNewApp = Get-AzureADApplication -Filter "DisplayName eq '$ApplicationNameTobeCreated'"
+        if($TheNewApp){
+            Write-Host "The $($TheNewApp.DisplayName) application Already Exist, the Script will quit! "
+            exit
+        }
 
+        Write-Host "Creating the AAD application (AutomationEngine)"
+        $clientAadApplication = New-AzureADApplication -DisplayName "AutomationEngine" `
+                                                        -HomePage "https://localhost:44321/" `
+                                                        -ReplyUrls "https://$tenantName/AutomationEngine/oauth2/callback" `
+                                                        -IdentifierUris "https://$tenantName/AutomationEngine" `
+                                                        -PublicClient $False `
+                                                        -PasswordCredentials $appKey
+     
+     $appID = $clientAadApplication.AppId        
+    
+
+     Write-Host "Checking Saved keys...    $appID " 
+
+   
   # Store appkey into KeyVault
+
+    #Getting Credentials for AzureRMAccount
+    Write-Host "You need to connect AzureRmAccount to create Resource Group and Key Vault! " -ForegroundColor Green
+    $userNameInmeta = Read-Host "Enter Your User Name "
+    $PassPrompt = Read-Host "Enter Your Password "
+    $passInmeta = ConvertTo-SecureString -String  $passPrompt -AsPlainText -Force
+    $InmetaCre = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userNameInmeta,$passInmeta
+
+    Connect-AzureRmAccount  -Credential  $InmetaCre
        #Creating a resource group
     $ResourceGroup = New-AzureRmResourceGroup -Name 'AutomationEngineResourceGroup' -Location 'NorthEurope'
 
@@ -159,16 +189,7 @@ Function CreateADALApplications
     Write-Host "Checking Saved keys...    $printkey " 
 
 
-    # Create the client AAD application
-    Write-Host "Creating the AAD application (AutomationEngine)"
-    $clientAadApplication = New-AzureADApplication -DisplayName "AutomationEngine" `
-                                                    -HomePage "https://localhost:44321/" `
-                                                    -ReplyUrls "https://$tenantName/AutomationEngine/oauth2/callback" `
-                                                    -IdentifierUris "https://$tenantName/AutomationEngine" `
-                                                    -PublicClient $False `
-                                                    -PasswordCredentials $appKey
-
-                                                               
+                                                              
                                                
    # Generate a certificate
    Write-Host "Creating the client appplication (AutomationEngine)"
@@ -181,12 +202,14 @@ Function CreateADALApplications
    $certBase64Value = [System.Convert]::ToBase64String($certificate.GetRawCertData())
    $certBase64Thumbprint = [System.Convert]::ToBase64String($certificate.GetCertHash())
 
-   $now = [System.DateTime]::Now
-   $EnDAte = $now.AddYears(5)
+  # $now = [System.DateTime]::Now
+  # $EnDAte = $now.AddYears(5)
  
-   Write-Host "End Date with Get staff $EnDAte"
-       
-   $password = ConvertTo-SecureString -String "123" -AsPlainText -Force
+   #Write-Host "End Date with Get staff $EnDAte"
+   $Generatedpassword = GeneratePassword
+   $password = ConvertTo-SecureString -String $Generatedpassword -AsPlainText -Force
+ 
+
    $thumbp = (($certificate).Thumbprint)
    $cert = Get-Item -Path Microsoft.PowerShell.Security\Certificate::CurrentUser\My\$thumbp
 

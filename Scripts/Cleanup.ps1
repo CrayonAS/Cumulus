@@ -42,18 +42,37 @@ This function removes the Azure AD applications that were created by the #1.ps1 
     
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
+   $app=Get-AzureADApplication -Filter "identifierUris/any(uri:uri eq 'https://$tenantName/AutomationEngine')"  
+   
 
-    Write-Host "Removing 'client' (AutomationEngine) if needed"
-    $app=Get-AzureADApplication -Filter "identifierUris/any(uri:uri eq 'https://$tenantName/AutomationEngine')"  
-    if ($app)
+    if ($app) 
     {
+     
+        # The Application to be deleted
+        $appName = $app.DisplayName  
+        Write-Host "Checking Saved keys...      $appName " -ForegroundColor Green
+   
+         #Getting Credentials for AzureRMAccount
+        Write-Host "You need to connect AzureRmAccount to DELETE Resource Group and Key Vault! " -ForegroundColor Green
+        $userNameInmeta =  $userNameInmeta = Read-Host "Enter Your User Name "
+        $PassPrompt = Read-Host "Enter Your Password "
+        $passInmeta = ConvertTo-SecureString -String  $PassPrompt -AsPlainText -Force
+        $InmetaCre = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userNameInmeta,$passInmeta
+
         Remove-AzureADApplication -ObjectId $app.ObjectId
         Write-Host "Removed."
 
+        Connect-AzureRmAccount  -Credential  $InmetaCre
+        Write-Host "Removing Resource Group and Key Vault Just a minute ......"
         Remove-AzureRmKeyVault -VaultName "AutomationEngineKeyVault" -ResourceGroupName "AutomationEngineResourceGroup"  -Force -Confirm:$False
         Remove-AzureRmResourceGroup -Name "AutomationEngineResourceGroup" -Force
+        Write-Host " Done! "
     }
 
+    else{
+
+        Write-Host "No App to be deleted!...      $appName " -ForegroundColor Green
+    }
 }
 
 Cleanup -Credential $Credential -tenantId $TenantId
