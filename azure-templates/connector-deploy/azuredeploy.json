@@ -2,48 +2,23 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "LogicApp1ZName": {
+    "logicAppName": {
       "type": "string",
       "minLength": 1,
       "maxLength": 80,
       "metadata": {
         "description": "Name of the Logic App."
       }
-    },
-    "LogicApp1ZLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "allowedValues": [
-        "[resourceGroup().location]",
-        "australiaeast",
-        "australiasoutheast",
-        "brazilsouth",
-        "centralus",
-        "eastasia",
-        "eastus",
-        "eastus2",
-        "japaneast",
-        "japanwest",
-        "northcentralus",
-        "northeurope",
-        "southcentralus",
-        "southeastasia",
-        "westeurope",
-        "westus"
-      ],
-      "metadata": {
-        "description": "Location of the Logic App."
-      }
     }
   },
   "variables": {
-    "logicAppName": "[parameters('LogicApp1ZName')]"
+    "logicAppName": "[parameters('logicAppName')]"
   },
   "resources": [
     {
       "name": "[variables('logicAppName')]",
       "type": "Microsoft.Logic/workflows",
-      "location": "[parameters('LogicApp1ZLocation')]",
+      "location": "[resourceGroup().location]",
       "apiVersion": "2016-06-01",
       "dependsOn": [],
       "tags": {

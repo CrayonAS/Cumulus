@@ -56,8 +56,8 @@ This function removes the Azure AD applications that were created by the #1.ps1 
    
          #Getting Credentials for AzureRMAccount
         Write-Host "You need to connect AzureRmAccount to DELETE Resource Group and Key Vault! " -ForegroundColor Green
-        $userNameInmeta =  $userNameInmeta = Read-Host "Enter Your User Name "
-        $PassPrompt = Read-Host "Enter Your Password "
+        $userNameInmeta = Read-Host "Enter Your User Name "
+        $PassPrompt = Read-Host "Enter Your Password " -AsSecureString
         $passInmeta = ConvertTo-SecureString -String  $PassPrompt -AsPlainText -Force
         $InmetaCre = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userNameInmeta,$passInmeta
 
@@ -66,8 +66,11 @@ This function removes the Azure AD applications that were created by the #1.ps1 
 
         Connect-AzureRmAccount  -Credential  $InmetaCre
         Write-Host "Removing Resource Group and Key Vault Just a minute ......"
-        Remove-AzureRmKeyVault -VaultName "AutomationEngineKeyVault" -ResourceGroupName "AutomationEngineResourceGroup"  -Force -Confirm:$False
-        Remove-AzureRmResourceGroup -Name "AutomationEngineResourceGroup" -Force
+        $ResourceGroup = Read-Host "Enter Resource Group to be Deleted "
+        $KeyVault = Read-Host "Enter Key Vault to be Deleted "
+        Remove-AzureRmKeyVault -VaultName $KeyVault -ResourceGroupName $ResourceGroup  -Force -Confirm:$False
+     
+        Remove-AzureRmResourceGroup -Name  $ResourceGroup -Force
         Write-Host " Done! "
     }
 
