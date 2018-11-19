@@ -1,0 +1,2431 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "LogicApp1ZName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Logic App."
+      }
+    },
+    "LogicApp1ZLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "australiaeast",
+        "australiasoutheast",
+        "brazilsouth",
+        "centralus",
+        "eastasia",
+        "eastus",
+        "eastus2",
+        "japaneast",
+        "japanwest",
+        "northcentralus",
+        "northeurope",
+        "southcentralus",
+        "southeastasia",
+        "westeurope",
+        "westus"
+      ],
+      "metadata": {
+        "description": "Location of the Logic App."
+      }
+    }
+  },
+  "variables": {
+    "logicAppName": "[parameters('LogicApp1ZName')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('logicAppName')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('LogicApp1ZLocation')]",
+      "apiVersion": "2016-06-01",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "LogicApp1Z"
+      },
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "actions": {},
+          "outputs": {},
+          "parameters": {},
+          "triggers": {}
+        },
+        "parameters": {}
+      }
+    },
+    {
+      "name": "CumulusConnectorTest1", // the connector name
+      "type": "Microsoft.Web/customApis",
+      "dependsOn": [
+      ],
+      "apiVersion": "2016-06-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "connectionParameters": {
+          "api_key": {
+            "type": "securestring",
+            "uiDefinition": {
+              "displayName": "Function Host Key",
+              "description": "The Function App Key for this api",
+              "tooltip": "Provide your Function App Key",
+              "constraints": {
+                "tabIndex": 2,
+                "clearText": false,
+                "required": "true"
+              }
+            }
+          }
+        },
+        "displayName": "Cumulus Connector Test",
+        "swagger": {
+          "swagger": "2.0",
+          "info": {
+            "title": "Cumulus.Monads",
+            "version": "1.0.0"
+          },
+          "host": "cumulusmonadssecond.azurewebsites.net",
+          "basePath": "/",
+          "schemes": [
+            "https"
+          ],
+          "definitions": {
+            "AddNavigationRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "Title": {
+                  "description": "Navigation title",
+                  "type": "string"
+                },
+                "NavigationURL": {
+                  "description": "Navigation URL",
+                  "type": "string"
+                },
+                "ParentTitle": {
+                  "description": "Parent navigation title",
+                  "type": "string"
+                },
+                "Type": {
+                  "description": "Type of navigation",
+                  "type": "string",
+                  "enum": [
+                    "TopNavigationBar",
+                    "QuickLaunch",
+                    "SearchNav"
+                  ]
+                },
+                "AddFirst": {
+                  "description": "Add as first navigation node",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Title",
+                "Type"
+              ]
+            },
+            "AddNavigationResponse": {
+              "type": "object",
+              "properties": {
+                "NavigationAdded": {
+                  "description": "True if navigation node was added",
+                  "type": "boolean"
+                }
+              }
+            },
+            "ApplySpColorRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "Filename": {
+                  "description": "Filename of spcolor file in SiteAssets",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Filename"
+              ]
+            },
+            "ApplySpColorResponse": {
+              "type": "object",
+              "properties": {
+                "Applied": {
+                  "description": "True if applied",
+                  "type": "boolean"
+                }
+              }
+            },
+            "Parameter": {
+              "type": "object",
+              "properties": {
+                "Key": {
+                  "description": "Extra PnP token to parse for template. Example. 'Foo' becomes '{parameter:Foo}' in the template.",
+                  "type": "string"
+                },
+                "Value": {
+                  "description": "Value to replace with",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "Key",
+                "Value"
+              ]
+            },
+            "ApplyTemplateRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site to apply template",
+                  "type": "string"
+                },
+                "TemplateURL": {
+                  "description": "SPO URL to the .pnp template",
+                  "type": "string"
+                },
+                "Parameters": {
+                  "description": "Replacement tokens to be used in .pnp templates",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Parameter"
+                  }
+                }
+              },
+              "required": [
+                "SiteURL",
+                "TemplateURL"
+              ]
+            },
+            "ApplyTemplateResponse": {
+              "type": "object",
+              "properties": {
+                "TemplateApplied": {
+                  "description": "True if template was applied",
+                  "type": "boolean"
+                },
+                "ElapsedMilliseconds": {
+                  "description": "Elapsed time in miliseconds",
+                  "format": "int64",
+                  "type": "integer"
+                }
+              }
+            },
+            "CreateSiteRequest": {
+              "type": "object",
+              "properties": {
+                "Tenant": {
+                  "description": "Tenant",
+                  "type": "string"
+                },
+                "Title": {
+                  "description": "Title ",
+                  "type": "string"
+                },
+                "Url": {
+                  "description": "Url",
+                  "type": "string"
+                },
+                "Description": {
+                  "description": "Description ",
+                  "type": "string"
+                },
+                "OwnerEmail": {
+                  "description": "OwnerEmail ",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "Tenant",
+                "Title",
+                "Url"
+              ]
+            },
+            "CreateSiteResponse": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                }
+              }
+            },
+            "GetSharePointGroupUsersRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "Group": {
+                  "description": "This returns String",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Group"
+              ]
+            },
+            "GetSharePointGroupUsersResponse": {
+              "type": "object",
+              "properties": {
+                "Group": {
+                  "description": "This returns String",
+                  "type": "string"
+                },
+                "Emails": {
+                  "description": "This returns String",
+                  "type": "string"
+                }
+              }
+            },
+            "GetTermPropertyRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "This returns String",
+                  "type": "string"
+                },
+                "TermGUID": {
+                  "description": "Term GUID",
+                  "type": "string"
+                },
+                "PropertyName": {
+                  "description": "Property name",
+                  "type": "string"
+                },
+                "FallbackValue": {
+                  "description": "Fallback value",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "TermGUID",
+                "PropertyName"
+              ]
+            },
+            "GetTermPropertyResponse": {
+              "type": "object",
+              "properties": {
+                "PropertyValue": {
+                  "description": "This returns String",
+                  "type": "string"
+                }
+              }
+            },
+            "IsAppInstalledRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "Title": {
+                  "description": "Title of application",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Title"
+              ]
+            },
+            "IsAppInstalledResponse": {
+              "type": "object",
+              "properties": {
+                "Installed": {
+                  "description": "True if app is installed",
+                  "type": "boolean"
+                }
+              }
+            },
+            "IsSiteReadyRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL"
+              ]
+            },
+            "IsSiteReadyResponse": {
+              "type": "object",
+              "properties": {
+                "IsSiteReady": {
+                  "description": "True/false if site is ready to accept modifications via API's",
+                  "type": "boolean"
+                }
+              }
+            },
+            "MakeEveryoneExceptExternalVisitorsRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL"
+              ]
+            },
+            "MakeEveryoneExceptExternalVisitorsResponse": {
+              "type": "object",
+              "properties": {
+                "EveryOneExceptExternalAddedToVisitors": {
+                  "description": "Everyone but external users was added to visitor group",
+                  "type": "boolean"
+                }
+              }
+            },
+            "MoveEveryoneExceptExternalVisitorsRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL"
+              ]
+            },
+            "MoveEveryoneExceptExternalVisitorsResponse": {
+              "type": "object",
+              "properties": {
+                "EveryOneExceptExternalMoved": {
+                  "description": "Everyone group was moved from member to visitor",
+                  "type": "boolean"
+                }
+              }
+            },
+            "PublishFileRequest": {
+              "type": "object",
+              "properties": {
+                "FileURL": {
+                  "description": "URL of file",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "FileURL"
+              ]
+            },
+            "PublishFileResponse": {
+              "type": "object",
+              "properties": {
+                "Published": {
+                  "description": "True if file was published",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SendEmailRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site to send from",
+                  "type": "string"
+                },
+                "Recipient": {
+                  "description": "E-mail of recipients. Separate multiple with ;",
+                  "type": "string"
+                },
+                "Subject": {
+                  "description": "Subject",
+                  "type": "string"
+                },
+                "Content": {
+                  "description": "Content, can include HTML markup",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Recipient",
+                "Subject",
+                "Content"
+              ]
+            },
+            "SendEmailResponse": {
+              "type": "object",
+              "properties": {
+                "Sent": {
+                  "description": "True/false if mail was sent",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetAccessRequestSettingsRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "MembersCanShare": {
+                  "description": "Allow members to share the site and individual files and folders.",
+                  "type": "boolean"
+                },
+                "RequestAccessEmail": {
+                  "description": "Send all requests for access to the following e-mail address",
+                  "type": "string"
+                },
+                "AllowMembersEditMembership": {
+                  "description": "Allow members to invite others to the site members group. This setting must be enabled to let members share the site.",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "SiteURL"
+              ]
+            },
+            "SetAccessRequestSettingsResponse": {
+              "type": "object",
+              "properties": {
+                "AccessRequestSettingsModified": {
+                  "description": "This returns Boolean",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetNoScriptRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "NoScript": {
+                  "description": "Turn NoScript on or off",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "NoScript"
+              ]
+            },
+            "SetNoScriptResponse": {
+              "type": "object",
+              "properties": {
+                "UpdatedNoScript": {
+                  "description": "True/false if NoScript updated",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetSiteClassificationRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "SiteClassification": {
+                  "description": "Site classification",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "SiteClassification"
+              ]
+            },
+            "SetSiteClassificationResponse": {
+              "type": "object",
+              "properties": {
+                "ClassificationSet": {
+                  "description": "This returns Boolean",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetSiteColorRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "RGB": {
+                  "description": "RGB color in hex notation. Eg. #00ff00",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "RGB"
+              ]
+            },
+            "SetSiteColorResponse": {
+              "type": "object",
+              "properties": {
+                "ColorSet": {
+                  "description": "True if color was set",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetSiteLanguageRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "LanguageIds": {
+                  "description": "LCID codes for languages. 1033 = English, 1044 = Norwegian",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "SiteURL",
+                "LanguageIds"
+              ]
+            },
+            "SetSiteLanguageResponse": {
+              "type": "object",
+              "properties": {
+                "LanguagesModified": {
+                  "description": "True if languages was changed from the previous state",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetSiteReadOnlyRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "Owner": {
+                  "description": "Owner",
+                  "type": "string"
+                },
+                "RemoveExternalUsers": {
+                  "description": "Remove external users",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Owner",
+                "RemoveExternalUsers"
+              ]
+            },
+            "SetSiteReadOnlyResponse": {
+              "type": "object",
+              "properties": {
+                "SetReadOnly": {
+                  "description": "True if the site was set to read-only",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetSiteSharingRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "SharingCapabilities": {
+                  "description": "Sharing outside your organization",
+                  "type": "string",
+                  "enum": [
+                    "Disabled",
+                    "ExternalUserSharingOnly",
+                    "ExternalUserAndGuestSharing",
+                    "ExistingExternalUserSharingOnly"
+                  ]
+                }
+              },
+              "required": [
+                "SiteURL",
+                "SharingCapabilities"
+              ]
+            },
+            "SetSiteSharingResponse": {
+              "type": "object",
+              "properties": {
+                "UpdatedSharing": {
+                  "description": "True/false if sharing capabilities was updated",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetSiteTitleRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                },
+                "Title": {
+                  "description": "This returns String",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL",
+                "Title"
+              ]
+            },
+            "SetSiteTitleResponse": {
+              "type": "object",
+              "properties": {
+                "OldTitle": {
+                  "description": "This returns String",
+                  "type": "string"
+                },
+                "NewTitle": {
+                  "description": "This returns String",
+                  "type": "string"
+                }
+              }
+            },
+            "TestConnectionSharePointRequest": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "SiteURL"
+              ]
+            },
+            "TestConnectionSharePointResponse": {
+              "type": "object",
+              "properties": {
+                "WebTitle": {
+                  "description": "This returns String",
+                  "type": "string"
+                }
+              }
+            },
+            "AddMemberRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "LoginName": {
+                  "description": "Unique login name of the member (user principal name)",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId",
+                "LoginName"
+              ]
+            },
+            "AddMemberResponse": {
+              "type": "object",
+              "properties": {
+                "Added": {
+                  "description": "true/false if added",
+                  "type": "boolean"
+                }
+              }
+            },
+            "AddOwnerRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "LoginName": {
+                  "description": "Unique login name of the owner (user principal name)",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId",
+                "LoginName"
+              ]
+            },
+            "AddOwnerResponse": {
+              "type": "object",
+              "properties": {
+                "Added": {
+                  "description": "true/false if added",
+                  "type": "boolean"
+                }
+              }
+            },
+            "CreateGroupRequest": {
+              "type": "object",
+              "properties": {
+                "Name": {
+                  "description": "Name of the group",
+                  "type": "string"
+                },
+                "Alias": {
+                  "description": "E-mail alias for the group",
+                  "type": "string"
+                },
+                "Description": {
+                  "description": "Description of the group",
+                  "type": "string"
+                },
+                "Prefix": {
+                  "description": "Prefix for group display name / e-mail address",
+                  "type": "string"
+                },
+                "PrefixSeparator": {
+                  "description": "Separator character between prefix and name",
+                  "type": "string"
+                },
+                "Suffix": {
+                  "description": "Suffix for group display name / e-mail address",
+                  "type": "string"
+                },
+                "SuffixSeparator": {
+                  "description": "Separator character between suffix and name",
+                  "type": "string"
+                },
+                "Public": {
+                  "description": "Should the group be public",
+                  "type": "boolean"
+                },
+                "UsePrefixInDisplayName": {
+                  "description": "If prefix is set, use for DisplayName",
+                  "type": "boolean"
+                },
+                "UsePrefixInMailAlias": {
+                  "description": "If prefix is set, use for EmailAlias",
+                  "type": "boolean"
+                },
+                "UseSuffixInMailAlias": {
+                  "description": "If suffix is set, use for EmailAlias",
+                  "type": "boolean"
+                },
+                "UseSuffixInDisplayName": {
+                  "description": "If suffix is set, use for DisplayName",
+                  "type": "boolean"
+                },
+                "Classification": {
+                  "description": "Classification",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "Name",
+                "Description",
+                "Public"
+              ]
+            },
+            "CreateGroupResponse": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "DisplayName": {
+                  "description": "DisplayName of the Office 365 Group",
+                  "type": "string"
+                },
+                "Mail": {
+                  "description": "Mail of the Office 365 Group",
+                  "type": "string"
+                }
+              }
+            },
+            "CreateTeamRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId"
+              ]
+            },
+            "CreateTeamResponse": {
+              "type": "object",
+              "properties": {
+                "Created": {
+                  "description": "True/false if created",
+                  "type": "boolean"
+                },
+                "TeamUrl": {
+                  "description": "Team URL",
+                  "type": "string"
+                },
+                "ErrorMessage": {
+                  "description": "Error message if applicable",
+                  "type": "string"
+                }
+              }
+            },
+            "GetClassificationValuesResponse": {
+              "type": "object",
+              "properties": {
+                "DefaultClassification": {
+                  "description": "Default classification value if set",
+                  "type": "string"
+                },
+                "Classifications": {
+                  "description": "List of classification values for the tenant",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "GetGroupSiteRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId"
+              ]
+            },
+            "GetGroupSiteResponse": {
+              "type": "object",
+              "properties": {
+                "SiteURL": {
+                  "description": "URL of site",
+                  "type": "string"
+                }
+              }
+            },
+            "RenewLifecyclePolicyRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId"
+              ]
+            },
+            "RenewLifecyclePolicyResponse": {
+              "type": "object",
+              "properties": {
+                "IsExtended": {
+                  "description": "true/false if set",
+                  "type": "boolean"
+                }
+              }
+            },
+            "AllowExternalMembersInGroupRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "ExternalAllowed": {
+                  "description": "Specify if external users can be added as members",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "GroupId"
+              ]
+            },
+            "AllowExternalMembersInGroupResponse": {
+              "type": "object",
+              "properties": {
+                "ExternalAllowed": {
+                  "description": "True/false if external users are allowed as members",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetGraphMetadataRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "Key": {
+                  "description": "Metadata name",
+                  "type": "string",
+                  "enum": [
+                    "GroupType",
+                    "Responsible",
+                    "StartDate",
+                    "EndDate"
+                  ]
+                },
+                "Value": {
+                  "description": "Metadata value",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId",
+                "Key",
+                "Value"
+              ]
+            },
+            "SetGraphMetadataResponse": {
+              "type": "object",
+              "properties": {
+                "Added": {
+                  "description": "true/false if added",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetGraphMetadataBulkRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "JSON": {
+                  "description": "Escaped JSON string which match techmikael_GenericSchema in the format:\r\n\r\n{\r\n\t\"KeyString01\": \"Title\",\r\n\t\"ValueString01\": \"CTO Puzzlepart\",\r\n\r\n\t\"KeyBoolean00\": \"IsMVP\",\r\n\t\"LabelBoolean00\": \"Is Microsoft MVP\",\r\n\t\"ValueBoolean00\": true\r\n}\r\n",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId",
+                "JSON"
+              ]
+            },
+            "SetGraphMetadataBulkResponse": {
+              "type": "object",
+              "properties": {
+                "Added": {
+                  "description": "true/false if added",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetGraphMetadataGenericRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "Name": {
+                  "description": "Metadata name. E.g.: ValueString00, KeyString00, LabelString00",
+                  "type": "string"
+                },
+                "Value": {
+                  "description": "Metadata value. The actual value to be stored in e.g. ValueString00",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId",
+                "Name",
+                "Value"
+              ]
+            },
+            "SetGraphMetadataGenericResponse": {
+              "type": "object",
+              "properties": {
+                "Added": {
+                  "description": "true/false if added",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetGroupClassificationRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "Classification": {
+                  "description": "Classification label to be used",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "GroupId",
+                "Classification"
+              ]
+            },
+            "SetGroupClassificationResponse": {
+              "type": "object",
+              "properties": {
+                "IsUpdated": {
+                  "description": "true/false if set",
+                  "type": "boolean"
+                }
+              }
+            },
+            "SetLifecyclePolicyRequest": {
+              "type": "object",
+              "properties": {
+                "GroupId": {
+                  "description": "Id of the Office 365 Group",
+                  "type": "string"
+                },
+                "Operation": {
+                  "description": "Add or Remove the group from an expiration policy",
+                  "type": "string",
+                  "enum": [
+                    "Add",
+                    "Remove"
+                  ]
+                }
+              },
+              "required": [
+                "GroupId",
+                "Operation"
+              ]
+            },
+            "SetLifecyclePolicyResponse": {
+              "type": "object",
+              "properties": {
+                "IsApplied": {
+                  "description": "true/false if applied",
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "paths": {
+            "/api/AddNavigationLink": {
+              "post": {
+                "operationId": "AddnavigationlinkPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/AddNavigationRequest"
+                    }
+                  }
+                ],
+                "summary": "Add navigation link",
+                "description": "Adds a navigational link to the site.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/AddNavigationResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/ApplySpColor": {
+              "post": {
+                "operationId": "ApplyspcolorPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/ApplySpColorRequest"
+                    }
+                  }
+                ],
+                "summary": "Apply .spcolor file to the site",
+                "description": "Apply a previously added .spcolor file to the site.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/ApplySpColorResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/ApplyTemplate": {
+              "post": {
+                "operationId": "ApplytemplatePost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/ApplyTemplateRequest"
+                    }
+                  }
+                ],
+                "summary": "Apply PnP template to site",
+                "description": "Apply a PnP template to the site.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/ApplyTemplateResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/CreateSite": {
+              "post": {
+                "operationId": "CreatesitePost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/CreateSiteRequest"
+                    }
+                  }
+                ],
+                "summary": "Creates a modern team site",
+                "description": "This function will run CreateSite",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/CreateSiteResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/GetSharePointGroupUsers": {
+              "post": {
+                "operationId": "GetsharepointgroupusersPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/GetSharePointGroupUsersRequest"
+                    }
+                  }
+                ],
+                "summary": "Get users in a SharePoint group",
+                "description": "This function will run GetSharePointGroupUsers",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/GetSharePointGroupUsersResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/GetTermProperty": {
+              "post": {
+                "operationId": "GettermpropertyPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/GetTermPropertyRequest"
+                    }
+                  }
+                ],
+                "summary": "Get term property",
+                "description": "This function will run GetTermProperty",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/GetTermPropertyResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/IsAppInstalled": {
+              "post": {
+                "operationId": "IsappinstalledPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/IsAppInstalledRequest"
+                    }
+                  }
+                ],
+                "summary": "Check if an SP App is installed",
+                "description": "Checks if an application is completely installed.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/IsAppInstalledResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/IsSiteReady": {
+              "post": {
+                "operationId": "IssitereadyPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/IsSiteReadyRequest"
+                    }
+                  }
+                ],
+                "summary": "Check if Modern Team Site is ready",
+                "description": "Check if the team site is 100% ready before running operations against it.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/IsSiteReadyResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/MakeEveryoneExceptExternalVisitors": {
+              "post": {
+                "operationId": "MakeeveryoneexceptexternalvisitorsPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/MakeEveryoneExceptExternalVisitorsRequest"
+                    }
+                  }
+                ],
+                "summary": "Make Everyone but external users visitor",
+                "description": "This function will run MakeEveryoneExceptExternalVisitors",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/MakeEveryoneExceptExternalVisitorsResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/MoveEveryoneExceptExternalVisitors": {
+              "post": {
+                "operationId": "MoveeveryoneexceptexternalvisitorsPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/MoveEveryoneExceptExternalVisitorsRequest"
+                    }
+                  }
+                ],
+                "summary": "Move Everyone (except external) users from member to visitor",
+                "description": "In a public group make everyone visitors and not contributors.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/MoveEveryoneExceptExternalVisitorsResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/PublishFile": {
+              "post": {
+                "operationId": "PublishfilePost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/PublishFileRequest"
+                    }
+                  }
+                ],
+                "summary": "Publish a SharePoint file",
+                "description": "Make sure a file is published as a major version.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/PublishFileResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SendEmail": {
+              "post": {
+                "operationId": "SendemailPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SendEmailRequest"
+                    }
+                  }
+                ],
+                "summary": "Send e-mail via SharePoint",
+                "description": "Send e-mail to a user in the context of a SharePoint site",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SendEmailResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetAccessRequestSettings": {
+              "post": {
+                "operationId": "SetaccessrequestsettingsPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetAccessRequestSettingsRequest"
+                    }
+                  }
+                ],
+                "summary": "Set access request settings",
+                "description": "This function will run SetAccessRequestSettings",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetAccessRequestSettingsResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetNoScript": {
+              "post": {
+                "operationId": "SetnoscriptPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetNoScriptRequest"
+                    }
+                  }
+                ],
+                "summary": "Enable or disable NoScript",
+                "description": "Turn NoScript on or off for the site collection",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetNoScriptResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetSiteClassification": {
+              "post": {
+                "operationId": "SetsiteclassificationPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteClassificationRequest"
+                    }
+                  }
+                ],
+                "summary": "Set classification for the site",
+                "description": "This function will run SetSiteClassification",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteClassificationResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetSiteColor": {
+              "post": {
+                "operationId": "SetsitecolorPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteColorRequest"
+                    }
+                  }
+                ],
+                "summary": "Set color theme for the site",
+                "description": "Define a color scheme for the site based off a base color.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteColorResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetSiteLanguage": {
+              "post": {
+                "operationId": "SetsitelanguagePost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteLanguageRequest"
+                    }
+                  }
+                ],
+                "summary": "Set allowed languages for the site",
+                "description": "Which languages should be available by default for a site.",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteLanguageResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetSiteReadOnly": {
+              "post": {
+                "operationId": "SetsitereadonlyPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteReadOnlyRequest"
+                    }
+                  }
+                ],
+                "summary": "Set the site to read-only",
+                "description": "This function will run SetSiteReadOnly",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteReadOnlyResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetSiteSharing": {
+              "post": {
+                "operationId": "SetsitesharingPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteSharingRequest"
+                    }
+                  }
+                ],
+                "summary": "Set SharePoint Sharing Level",
+                "description": "Set who a site can be shared with",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteSharingResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetSiteTitle": {
+              "post": {
+                "operationId": "SetsitetitlePost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteTitleRequest"
+                    }
+                  }
+                ],
+                "summary": "Set title for the site",
+                "description": "This function will run SetSiteTitle",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetSiteTitleResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/TestConnectionSharePointSharePoint": {
+              "post": {
+                "operationId": "TestconnectionsharepointsharepointPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/TestConnectionSharePointRequest"
+                    }
+                  }
+                ],
+                "summary": "TestConnectionSharePointSharePoint",
+                "description": "This function will run TestConnectionSharePointSharePoint",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/TestConnectionSharePointResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/AddMember": {
+              "post": {
+                "operationId": "AddmemberPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/AddMemberRequest"
+                    }
+                  }
+                ],
+                "summary": "Add a member to an Office 365 Group",
+                "description": "This action will add an member to an Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/AddMemberResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/AddOwner": {
+              "post": {
+                "operationId": "AddownerPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/AddOwnerRequest"
+                    }
+                  }
+                ],
+                "summary": "Add an owner to an Office 365 Group",
+                "description": "This action will add an owner to an Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/AddOwnerResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/CreateGroup": {
+              "post": {
+                "operationId": "CreategroupPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/CreateGroupRequest"
+                    }
+                  }
+                ],
+                "summary": "Create Office 365 Group",
+                "description": "This action will create a new Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/CreateGroupResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/CreateTeam": {
+              "post": {
+                "operationId": "CreateteamPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/CreateTeamRequest"
+                    }
+                  }
+                ],
+                "summary": "Create a Team for a Office 365 Group",
+                "description": "This function will run CreateTeam",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/CreateTeamResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/GetClassificationValues": {
+              "get": {
+                "operationId": "GetclassificationvaluesGet",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+
+                ],
+                "summary": "Retrieve classification values",
+                "description": "Fetch the classification values defined on the tenant for Office 365 Groups",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/GetClassificationValuesResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/GetGroupSite": {
+              "post": {
+                "operationId": "GetgroupsitePost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/GetGroupSiteRequest"
+                    }
+                  }
+                ],
+                "summary": "Get site URL for Office 365 Group",
+                "description": "Retreive the URL to the Modern Team Site associated with the Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/GetGroupSiteResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/RenewLifecyclePolicy": {
+              "post": {
+                "operationId": "RenewlifecyclepolicyPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/RenewLifecyclePolicyRequest"
+                    }
+                  }
+                ],
+                "summary": "Renew expiration for an Office 365 Group",
+                "description": "Extend lifecycle expiration for the Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/RenewLifecyclePolicyResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/AllowExternalMembersInGroup": {
+              "post": {
+                "operationId": "AllowexternalmembersingroupPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/AllowExternalMembersInGroupRequest"
+                    }
+                  }
+                ],
+                "summary": "Enable or disable invitation of external members",
+                "description": "Allow or disallow invitation of external members to the Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/AllowExternalMembersInGroupResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetGraphMetadata": {
+              "post": {
+                "operationId": "SetgraphmetadataPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetGraphMetadataRequest"
+                    }
+                  }
+                ],
+                "summary": "Set Office 365 Group metadata",
+                "description": "Store metadata for the Office 365 Group in the Microsoft Graph",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetGraphMetadataResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetGraphMetadataBulk": {
+              "post": {
+                "operationId": "SetgraphmetadatabulkPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetGraphMetadataBulkRequest"
+                    }
+                  }
+                ],
+                "summary": "Set Office 365 Group generic metadata as a JSON payload",
+                "description": "Store metadata using techmikael_GenericSchema for the Office 365 Group in the Microsoft Graph",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetGraphMetadataBulkResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetGraphMetadataGeneric": {
+              "post": {
+                "operationId": "SetgraphmetadatagenericPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetGraphMetadataGenericRequest"
+                    }
+                  }
+                ],
+                "summary": "Set Office 365 Group generic metadata",
+                "description": "Store metadata using techmikael_GenericSchema for the Office 365 Group in the Microsoft Graph",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetGraphMetadataGenericResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetGroupClassification": {
+              "post": {
+                "operationId": "SetgroupclassificationPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetGroupClassificationRequest"
+                    }
+                  }
+                ],
+                "summary": "Set classification value for an Office 365 Group",
+                "description": "Set the classification value for the Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetGroupClassificationResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            },
+            "/api/SetLifecyclePolicy": {
+              "post": {
+                "operationId": "SetlifecyclepolicyPost",
+                "produces": [
+                  "application/json"
+                ],
+                "consumes": [
+                  "application/json"
+                ],
+                "parameters": [
+                  {
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                      "$ref": "#/definitions/SetLifecyclePolicyRequest"
+                    }
+                  }
+                ],
+                "summary": "Set lifecycle policy to an Office 365 Group",
+                "description": "Apply an expiration lifecyle policy to the Office 365 Group",
+                "responses": {
+                  "200": {
+                    "description": "OK",
+                    "schema": {
+                      "$ref": "#/definitions/SetLifecyclePolicyResponse"
+                    }
+                  }
+                },
+                "security": [
+                  {
+                    "apikeyQuery": [
+
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "securityDefinitions": {
+            "apikeyQuery": {
+              "type": "apiKey",
+              "name": "code",
+              "in": "query"
+            }
+          }
+        },
+        "backendService": {
+          "serviceUrl": "https://cumulusmonadssecond.azurewebsites.net"
+        },
+        "apiType": "Rest"
+      }
+    }
+
+  ],
+  "outputs": {}
+}

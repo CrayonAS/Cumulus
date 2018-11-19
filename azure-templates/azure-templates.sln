@@ -9,6 +9,8 @@ Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "keyvault-deploy", "keyvault
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "logicapps-deploy", "logicapps-deploy\logicapps-deploy.deployproj", "{DD380ABE-E31B-4F03-B573-76B2CC49ABB3}"
 EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "connector-deploy", "connector-deploy\connector-deploy.deployproj", "{6E488CF9-D916-4F9D-86C7-582A43AC74EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DD380ABE-E31B-4F03-B573-76B2CC49ABB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD380ABE-E31B-4F03-B573-76B2CC49ABB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD380ABE-E31B-4F03-B573-76B2CC49ABB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E488CF9-D916-4F9D-86C7-582A43AC74EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E488CF9-D916-4F9D-86C7-582A43AC74EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E488CF9-D916-4F9D-86C7-582A43AC74EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E488CF9-D916-4F9D-86C7-582A43AC74EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
